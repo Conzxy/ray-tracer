@@ -11,18 +11,22 @@ class Material;
 
 struct HitRecord {
   // 用于更新t的边界值，获取最近的t
-  double t;
+  double t = 0;
   // 用于光线反射，折射等计算
-  Vec3F normal;
+  Vec3F normal { 0, 0, 0 };
   // 射线的终点和新射线的起点
-  Point3F p;
+  Point3F p { 0, 0, 0 };
+  
+  // UV Coordinates
+  double u = 0;
+  double v = 0;
 
   // 折射Snell's Law涉及两边介质的比值。
   // 如果是normal被反转了，介质比值也得反转。
   // 因此需要记录。
-  bool front_face;
+  bool front_face = true;
 
-  Material *material;
+  Material *material = nullptr;
 
   void set_face_normal(Ray const &r, Vec3F const &outward_normal) noexcept
   {
