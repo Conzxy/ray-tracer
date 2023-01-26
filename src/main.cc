@@ -15,11 +15,14 @@
 #include "rt/camera.hh"
 #include "rt/hit_record.hh"
 #include "rt/ray.hh"
+#include "rt/scatter_record.hh"
 #include "shape/box.hh"
 #include "shape/rect.hh"
 #include "shape/rotate.hh"
+#include "shape/translate.hh"
 #include "shape/shape_list.hh"
 #include "shape/sphere.hh"
+#include "shape/flip_face.hh"
 #include "texture/checker_texture.hh"
 #include "texture/image_texture.hh"
 #include "texture/solid_texture.hh"
@@ -296,14 +299,32 @@ Vec3F ray_color(Ray const &ray, rt::Color const &background, Shape const &world,
   if (world.hit(ray, 0.001, inf, record)) {
     rt::Color attenuation;
     Ray out_ray;
-    auto emitted = record.material->emitted(record.u, record.v, record.p);
-    if (record.material->scatter(ray, record, &attenuation, &out_ray)) {
-      return attenuation *
-                 ray_color(out_ray, background, world, max_depth - 1) +
+    ScatterRecord s_rec;
+    auto emitted = record.material->emitted(record, record.u, record.v, record.p);
+    if (record.material->scatter(ray, record, &attenuation, &out_ray, &s_rec)) {
+      auto area = 200 * 200;
+      auto light_surface_p =
+          Point3F(random_double(-100, 100), 554, random_double(-378, -178));
+      auto hit_to_light = light_surface_p - record.p;
+      auto distance_squared = hit_to_light.length_squared();
+      auto unit_hit_to_light = hit_to_light.normalize();
+      if (dot(unit_hit_to_light, record.normal) < 0) return emitted;
+      auto cos_theta = fabs(dot(Vec3F(0, -1, 0), -unit_hit_to_light));
+      if (cos_theta < epsilon) return emitted;
+      auto pdf = distance_squared / (cos_theta * area);
+      s_rec.pdf = pdf;
+      out_ray.set_direction(unit_hit_to_light);
+#if 1
+      return (attenuation / pi) *
+                 ray_color(out_ray, background, world, max_depth - 1) *
+                 dot(out_ray.direction().normalize(), record.normal) / s_rec.pdf +
              emitted;
-    } else {
-      return emitted;
+#else
+      return attenuation *
+             ray_color(out_ray, background, world, max_depth - 1) + emitted;
+#endif
     }
+    return emitted;
   }
 
 #if 0
@@ -432,14 +453,20 @@ void setup_cornellbox(ShapeList &world)
   world.add(make_shared<XyRect>(-278, 278, 0, 556, -556, white)); // front face
   world.add(make_shared<XzRect>(-278, 278, -556, 0, 0, white));   // bottom
   world.add(make_shared<XzRect>(-278, 278, -556, 0, 556, white)); // top
-  world.add(XzRect::create_based_mid(0, 200, -278, 200, 554, light));
-  ShapeSPtr box1 =
-      make_shared<Box>(Point3F(278 - 295, 0, -230),
-                       Point3F(278 - 130, 165, -65), white); // right
-  ShapeSPtr box2 = make_shared<Box>(Point3F(278 - 430, 0, -460),
-                                    Point3F(278 - 265, 330, -295), white); // left
-  // box1 = make_shared<Rotate>(std::move(box1), Degree{.y = -18});
-  // box2 = make_shared<Rotate>(std::move(box2), Degree{.y = 15});
+  world.add(make_shared<FlipFace>(XzRect::create_based_mid(0, 200, -278, 200, 554, light)));
+
+  ShapeSPtr box1 = 
+      make_shared<Box>(Point3F(0, 0, 0),
+                       Point3F(165, 330, 165), white); // left
+
+  ShapeSPtr box2 =
+      make_shared<Box>(Point3F(0, 0, 0),
+                       Point3F(165, 165, 165), white); // right
+  
+  box1 = make_shared<Rotate>(std::move(box1), Degree{.y = 18});
+  box2 = make_shared<Rotate>(std::move(box2), Degree{.y = -15});
+  box1 = make_shared<Translate>(std::move(box1), Vec3F{-152, 0, -460});
+  box2 = make_shared<Translate>(std::move(box2), Vec3F{17, 0, -230});
   world.add(box1);
   world.add(box2);
 }
