@@ -4,13 +4,15 @@
 #include "material.hh"
 
 #include "../rt/color.hh"
+#include "../texture/texture.hh"
 
 namespace rt {
 
 class Lambertian : public Material {
  public:
-  explicit Lambertian(Color const &albedo)
-    : albedo_(albedo)
+  explicit Lambertian(Color const &albedo);
+  explicit Lambertian(TextureSPtr const &texture)
+    : albedo_(texture)
   {
   }
 
@@ -18,7 +20,7 @@ class Lambertian : public Material {
                Ray *out_ray) const override;
 
  private:
-  Color albedo_;
+  TextureSPtr albedo_;
 };
 
 } // namespace rt
