@@ -1,6 +1,8 @@
 #include "dielectric.hh"
 
 #include "../rt/hit_record.hh"
+#include "../rt/scatter_record.hh"
+#include "../gm/util.hh"
 #include "util.hh"
 
 using namespace gm;
@@ -13,7 +15,7 @@ inline static double schelink_reflectance(double cosine, double refract_ratio)
   return r0 + (1-r0)*pow((1-cosine), 5);  
 }
 
-bool Dielectric::scatter(const Ray &in_ray, const HitRecord &record, Color *attenuation, Ray *out_ray) const
+bool Dielectric::scatter(const Ray &in_ray, const HitRecord &record, Color *attenuation, Ray *out_ray, ScatterRecord *s_rec) const
 {
   *attenuation = rt::Color(1.0, 1.0, 1.0);  
 
@@ -34,5 +36,6 @@ bool Dielectric::scatter(const Ray &in_ray, const HitRecord &record, Color *atte
     out_ray_direction = refract(unit_direciton, record.normal, refract_ratio);
 
   *out_ray = Ray(record.p, out_ray_direction);
+  s_rec->pdf = dot(record.normal, unit_direciton) / pi;
   return true;
 }
