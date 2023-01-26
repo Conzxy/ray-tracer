@@ -23,15 +23,14 @@ class DiffuseLight : public Material {
   explicit DiffuseLight(Color const &emit);
 
   bool scatter(Ray const &in_ray, HitRecord const &record, Color *attenuation,
-               Ray *out_ray) const override
+               Ray *out_ray, ScatterRecord *) const override
   {
     return false;
   }
   
-  Color emitted(double u, double v, Point3F const &p) const override
-  {
-    return emit_->value(u, v, p);
-  }
+  Color emitted(HitRecord const &rec, double u, double v, Point3F const &p) const override;
+
+  virtual bool is_emissive() const override { return true; }
  private:
   TextureSPtr emit_;
 };
