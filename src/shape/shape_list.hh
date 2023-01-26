@@ -7,23 +7,23 @@
 
 namespace rt {
 
-class ShapeList : public Shape
-{
+class ShapeList : public Shape {
  public:
   ShapeList() = default;
 
-  void add(ShapePtr const &shape)
-  {
-    shapes_.push_back(shape);
-  }
-  
+  void add(ShapePtr const &shape) { shapes_.push_back(shape); }
+
   bool hit(Ray const &ray, double tmin, double tmax,
-      HitRecord &record) const override;
+           HitRecord &record) const override;
+
+  bool get_bounding_box(Aabb &output_box) const override;
+
+  std::vector<ShapePtr> const &shape() const noexcept { return shapes_; }
 
  private:
   std::vector<ShapePtr> shapes_;
 };
 
-}
+} // namespace rt
 
 #endif
