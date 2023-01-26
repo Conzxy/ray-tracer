@@ -28,6 +28,13 @@ class Point3
   {
   }
   
+  Point3(Vec3<T> const &v) noexcept
+    : x(v.x)
+    , y(v.y)
+    , z(v.z)
+  {
+  }
+
   T operator[](int idx) const noexcept { return reinterpret_cast<T const*>(this)[idx]; }
   T& operator[](int idx) noexcept { return reinterpret_cast<T*>(this)[idx]; }
 
@@ -86,6 +93,23 @@ class Point3
       z + v.z,
     };
   }
+  
+  Point3 operator+(T m) const noexcept
+  {
+    return {
+      x + m,
+      y + m,
+      z + m,
+    };
+  }
+  
+  Point3 &operator+=(T m) noexcept
+  {
+    x += m;
+    y += m;
+    z += m;
+    return *this;
+  }
 
   // Point3 - Vector = Point3
   Point3& operator-=(Vec3<T> const &v) noexcept
@@ -112,6 +136,23 @@ class Point3
       y - p.y,
       z - p.z
     };
+  }
+
+  Point3 operator-(T m) const noexcept
+  {
+    return {
+      x - m,
+      y - m,
+      z - m,
+    };
+  }
+  
+  Point3 &operator-=(T m) noexcept
+  {
+    x -= m;
+    y -= m;
+    z -= m;
+    return *this;
   }
 
   Point3 operator-() const noexcept

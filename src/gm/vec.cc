@@ -16,7 +16,7 @@ Vec3F random_in_unit_sphere()
 
 Vec3F random_on_unit_sphere_surface()
 {
-  Vec3F ret = Vec3F::random();
+  Vec3F ret = Vec3F::random(-1, 1);
   return ret.normalize();
 }
 
