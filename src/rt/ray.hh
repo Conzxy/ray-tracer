@@ -17,8 +17,16 @@ class Ray {
   {
   }
 
+  // NOTE
+  // 最终还是有需求更新origin和direction
+  // 但是碍于成员名过于简单
+  // 还是就着原来的origin()/direction()接口
+  // 增加了set_XXX()接口
   gm::Point3F origin() const noexcept { return o_; }
   gm::Vec3F direction() const noexcept { return d_; }
+
+  void set_origin(gm::Point3F const &o) noexcept { o_ = o; }
+  void set_direction(gm::Vec3F const &d) noexcept { d_ = d; }
 
   gm::Point3F at(double t) const noexcept { return o_ + d_ * t; }
 
