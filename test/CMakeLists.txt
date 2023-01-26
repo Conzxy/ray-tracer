@@ -54,4 +54,4 @@ endmacro()
 # 用户可根据需要替换
 # 至于其他依赖项也可以在尾部追加
 GenTest(RAY_TRACER_TEST_SOURCES gtest gtest_main)
-# GenTest(RAY_TRACER_BENCH_SOURCES benchmark benchmark_main)
+GenTest(RAY_TRACER_BENCH_SOURCES benchmark benchmark_main)
