@@ -5,6 +5,8 @@ file(GLOB_RECURSE RT_SOURCES
   rt/*.cc
   shape/*.cc
   material/*.cc
+  texture/*.cc
+  accelerate/*.cc
   main.cc)
 
 GenLib(ray_tracer ${RT_SOURCES})
