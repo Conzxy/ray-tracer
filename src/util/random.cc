@@ -20,8 +20,9 @@ double random_double(double rmin, double rmax)
 
 int random_int(int rmin, int rmax)
 {
-  static std::uniform_int_distribution<int> dist(rmin, rmax);
-  return dist(generator);
+  // static std::uniform_int_distribution<int> dist(rmin, rmax);
+  // return dist(generator);
+  return int(random_double(rmin, rmax+1));
 }
 
 } // namespace util
