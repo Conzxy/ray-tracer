@@ -1,8 +1,8 @@
 #include "option.hh"
 
 #include <cstdio>
-#include <string_view>
 #include <cstring>
+#include <string_view>
 
 #include "util/str_cvt.hh"
 
@@ -16,14 +16,16 @@ void Option::DebugPrint() const
   printf("thread_num = %d\n", thread_num);
   printf("image_height = %d\n", image_height);
   printf("gamma = %d\n", gamma);
+  printf("scene = %d\n", scene_id);
 }
 
 #define PROGRAM_USAGE                                                          \
   "Usage: %s [image path] "                                                    \
   "[--sample_per_pixel/-spp integer] "                                         \
-  "[--threads/-t integer]"                                                     \
-  "[--gamma/-g integer]"                                                       \
-  "[--height/-h integer]\n",                                                   \
+  "[--threads/-t integer] "                                                    \
+  "[--gamma/-g integer] "                                                      \
+  "[--height/-h integer] "                                                     \
+  "[--scene/-s integer]\n",                                                    \
       argv[0]
 
 inline bool check_option(std::string_view opt, char const *lopt,
@@ -31,7 +33,6 @@ inline bool check_option(std::string_view opt, char const *lopt,
 {
   return opt == lopt || opt == sopt;
 }
-
 
 bool parse_options(int argc, char *argv[], Option *option)
 {
@@ -42,7 +43,7 @@ bool parse_options(int argc, char *argv[], Option *option)
 
   if (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h")) {
     printf(PROGRAM_USAGE);
-    return true;
+    return false;
   }
 
   option->path = argv[1];
