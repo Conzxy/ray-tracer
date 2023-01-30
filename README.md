@@ -48,7 +48,7 @@ $ ./rt 1.tga -h=800 ./rt 1.tga -h=800 -spp=100 -t=8 && [image viewr(support *.tg
 需要指定图片存放路径，其它均是选项。
 <br>* `--sample_per_pixel/-spp`: 一个像素的采样数。默认为100。
 <br>* `--threads/-t`: 并行线程的数目，默认为8。
-<br>* `--gamma/-g`: 参考**gamma correction**。默认为2。
+<br>* `--gamma/-g`: 参考[gamma correction](https://en.wikipedia.org/wiki/Gamma_correction)。默认为2。
 <br>* `--height/-h`: 图片高度。默认为400。
 <br>* `--scene/-s`: 场景ID。默认为-1，即选择默认场景。
 
