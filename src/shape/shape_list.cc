@@ -1,9 +1,13 @@
 #include "shape_list.hh"
 
+#include <cassert>
+
 #include "../accelerate/aabb.hh"
 #include "../rt/hit_record.hh"
+#include "../util/random.hh"
 
 using namespace rt;
+using namespace util;
 
 bool ShapeList::hit(Ray const &ray, double tmin, double tmax,
                     HitRecord &record) const
@@ -41,3 +45,17 @@ bool ShapeList::get_bounding_box(Aabb &output_box) const
   return true;
 }
 
+double ShapeList::pdf_value(const Point3F &origin, const Vec3F &direction) const
+{
+  const double weight = 1. / shapes_.size();
+  double ret = 0.;
+  for (auto const &shape : shapes_)
+    ret += weight * shape->pdf_value(origin, direction);
+  return ret;
+}
+
+Vec3F ShapeList::random_direction(const Point3F &origin) const
+{
+  assert(!shapes_.empty());
+  return shapes_[random_int(0, shapes_.size()-1)]->random_direction(origin);
+}
