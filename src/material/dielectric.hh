@@ -12,8 +12,7 @@ class Dielectric : public Material {
   {
   }
 
-  bool scatter(const Ray &in_ray, const HitRecord &record, Color *attenuation,
-               Ray *out_ray, ScatterRecord *s_rec) const override;
+  bool scatter(const Ray &in_ray, const HitRecord &record, ScatterRecord &srec) const override;
 
  private:
   double rr_;

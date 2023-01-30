@@ -13,8 +13,7 @@ class Matal : public Material {
   {
   }
 
-  virtual bool scatter(const Ray &in_ray, const HitRecord &record,
-                       Color *attenuation, Ray *out_ray, ScatterRecord *s_rec) const override;
+  virtual bool scatter(const Ray &in_ray, const HitRecord &record, ScatterRecord &srec) const override;
  private:
   Color albedo_;
   double fuzzy_;

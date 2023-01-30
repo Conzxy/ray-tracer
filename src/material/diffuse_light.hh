@@ -22,8 +22,7 @@ class DiffuseLight : public Material {
 
   explicit DiffuseLight(Color const &emit);
 
-  bool scatter(Ray const &in_ray, HitRecord const &record, Color *attenuation,
-               Ray *out_ray, ScatterRecord *) const override
+  bool scatter(Ray const &in_ray, HitRecord const &record, ScatterRecord &srec) const override
   {
     return false;
   }

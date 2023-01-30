@@ -16,8 +16,8 @@ class Lambertian : public Material {
   {
   }
 
-  bool scatter(Ray const &in_ray, HitRecord const &record, Color *attenuation,
-               Ray *out_ray, ScatterRecord *s_rec) const override;
+  bool scatter(Ray const &in_ray, HitRecord const &record,
+               ScatterRecord &srec) const override;
 
  private:
   TextureSPtr albedo_;
