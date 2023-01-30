@@ -3,9 +3,9 @@
 
 #include <cmath>
 #include <type_traits>
-//#include <iosfwd>
-#include <iostream>
+// #include <iosfwd>
 #include <cstring>
+#include <iostream>
 
 #include "util.hh"
 
@@ -18,8 +18,7 @@ namespace gm {
  * （不够轻量级）
  */
 template <typename T>
-class Vec3
-{
+class Vec3 {
  public:
   /*
    * 由于不想通过.x(), .y(), .z()访问分量，
@@ -29,7 +28,7 @@ class Vec3
   T x;
   T y;
   T z;
-  
+
   Vec3() = default;
   Vec3(T x_, T y_, T z_) noexcept
     : x(x_)
@@ -37,11 +36,14 @@ class Vec3
     , z(z_)
   {
   }
-  
-  T operator[](int idx) const noexcept { return reinterpret_cast<T const*>(this)[idx]; }
-  T& operator[](int idx) noexcept { return reinterpret_cast<T*>(this)[idx]; }
-  
-  Vec3& operator/=(T d) noexcept
+
+  T operator[](int idx) const noexcept
+  {
+    return reinterpret_cast<T const *>(this)[idx];
+  }
+  T &operator[](int idx) noexcept { return reinterpret_cast<T *>(this)[idx]; }
+
+  Vec3 &operator/=(T d) noexcept
   {
     x /= d;
     y /= d;
@@ -52,12 +54,12 @@ class Vec3
   Vec3 operator/(T d) const noexcept
   {
     return {
-      x / d,
-      y / d,
-      z / d,
+        x / d,
+        y / d,
+        z / d,
     };
   }
-  
+
   Vec3 &operator/=(Vec3 const &v) noexcept
   {
     x /= v.x;
@@ -65,17 +67,17 @@ class Vec3
     z /= v.z;
     return *this;
   }
-  
+
   Vec3 operator/(Vec3 const &v) const noexcept
   {
     return {
-      x / v.x,
-      y / v.y,
-      z / v.z,
+        x / v.x,
+        y / v.y,
+        z / v.z,
     };
   }
 
-  Vec3& operator*=(T m) noexcept
+  Vec3 &operator*=(T m) noexcept
   {
     x *= m;
     y *= m;
@@ -93,12 +95,12 @@ class Vec3
      * 但是我这里想避免一次拷贝，因为计算很频繁
      */
     return {
-      x * m,
-      y * m,
-      z * m,
+        x * m,
+        y * m,
+        z * m,
     };
   }
-  
+
   Vec3 &operator*=(Vec3 const &v) noexcept
   {
     x *= v.x;
@@ -106,18 +108,17 @@ class Vec3
     z *= v.z;
     return *this;
   }
-  
+
   Vec3 operator*(Vec3 const &v) const noexcept
   {
     return {
-      x * v.x,
-      y * v.y,
-      z * v.z,
+        x * v.x,
+        y * v.y,
+        z * v.z,
     };
-
   }
 
-  Vec3& operator+=(Vec3 const &v) noexcept
+  Vec3 &operator+=(Vec3 const &v) noexcept
   {
     x += v.x;
     y += v.y;
@@ -125,24 +126,24 @@ class Vec3
     return *this;
   }
 
-  Vec3& operator+=(T m) noexcept
+  Vec3 &operator+=(T m) noexcept
   {
     x += m;
     y += m;
     z += m;
     return *this;
   }
-  
+
   Vec3 operator+(T m) const noexcept
   {
     return {
-      x + m,
-      y + m,
-      z + m,
+        x + m,
+        y + m,
+        z + m,
     };
   }
-  
-  Vec3& operator-=(T m) noexcept
+
+  Vec3 &operator-=(T m) noexcept
   {
     x -= m;
     y -= m;
@@ -153,22 +154,22 @@ class Vec3
   Vec3 operator-(T m) const noexcept
   {
     return {
-      x - m,
-      y - m,
-      z - m,
+        x - m,
+        y - m,
+        z - m,
     };
   }
 
   Vec3 operator+(Vec3 const &v) const noexcept
   {
     return {
-      x + v.x,
-      y + v.y,
-      z + v.z,
+        x + v.x,
+        y + v.y,
+        z + v.z,
     };
   }
-  
-  Vec3& operator-=(Vec3 const &v) noexcept
+
+  Vec3 &operator-=(Vec3 const &v) noexcept
   {
     x -= v.x;
     y -= v.y;
@@ -179,16 +180,18 @@ class Vec3
   Vec3 operator-(Vec3 v) const noexcept
   {
     return {
-      x - v.x,
-      y - v.y,
-      z - v.z,
+        x - v.x,
+        y - v.y,
+        z - v.z,
     };
   }
-  
+
   Vec3 operator-() const noexcept
   {
     return {
-      -x, -y, -z,
+        -x,
+        -y,
+        -z,
     };
   }
 
@@ -197,48 +200,35 @@ class Vec3
     return memcmp(this, &rhs, sizeof(Vec3)) == 0;
   }
 
-  bool operator!=(Vec3 const &rhs) const noexcept
-  {
-    return !(*this == rhs);
-  }
+  bool operator!=(Vec3 const &rhs) const noexcept { return !(*this == rhs); }
 
-  double length_squared() const noexcept
-  {
-    return x * x + y * y + z * z;
-  }
+  double length_squared() const noexcept { return x * x + y * y + z * z; }
 
-  double length() const noexcept
-  {
-    return std::sqrt(length_squared());
-  }
-  
-  Vec3 normalize() const noexcept
-  {
-    return *this / length();
-  }
-  
+  double length() const noexcept { return std::sqrt(length_squared()); }
+
+  Vec3 normalize() const noexcept { return *this / length(); }
+
   bool is_near_zero() const noexcept
   {
-    return fabs(x) < gm::epsilon &&
-           fabs(y) < gm::epsilon &&
+    return fabs(x) < gm::epsilon && fabs(y) < gm::epsilon &&
            fabs(z) < gm::epsilon;
   }
 
   static Vec3 random() noexcept
   {
     return {
-      util::random_double(),
-      util::random_double(),
-      util::random_double(),
+        util::random_double(),
+        util::random_double(),
+        util::random_double(),
     };
   }
 
   static Vec3 random(double rmin, double rmax) noexcept
   {
     return {
-      util::random_double(rmin, rmax),
-      util::random_double(rmin, rmax),
-      util::random_double(rmin, rmax),
+        util::random_double(rmin, rmax),
+        util::random_double(rmin, rmax),
+        util::random_double(rmin, rmax),
     };
   }
 };
@@ -253,9 +243,9 @@ template <typename T>
 inline Vec3<T> operator/(T m, Vec3<T> const &v) noexcept
 {
   return {
-    m / v.x,
-    m / v.y,
-    m / v.z,
+      m / v.x,
+      m / v.y,
+      m / v.z,
   };
 }
 
@@ -274,9 +264,9 @@ inline Vec3<double> cross(Vec3<T1> const &v1, Vec3<T2> const &v2) noexcept
    * | v2.x v2.y v2.z |
    */
   return {
-    v1.y * v2.z - v1.z * v2.y,
-    v1.z * v2.x - v1.x * v2.z,
-    v1.x * v2.y - v1.y * v2.x,
+      v1.y * v2.z - v1.z * v2.y,
+      v1.z * v2.x - v1.x * v2.z,
+      v1.x * v2.y - v1.y * v2.x,
   };
 }
 
@@ -287,16 +277,16 @@ using Vec3i = Vec3<int>;
 inline Vec3F lerp(Vec3F start, Vec3F end, double t) noexcept
 {
   return {
-    lerp(start.x, end.x, t),
-    lerp(start.y, end.y, t),
-    lerp(start.z, end.z, t),
+      lerp(start.x, end.x, t),
+      lerp(start.y, end.y, t),
+      lerp(start.z, end.z, t),
   };
 }
 
 template <typename T>
-std::ostream& operator<<(std::ostream &os, Vec3<T> const &v) noexcept
+std::ostream &operator<<(std::ostream &os, Vec3<T> const &v) noexcept
 {
-  return os << '(' << v.x << ", " << v.y << ", "<< v.z << ')';
+  return os << '(' << v.x << ", " << v.y << ", " << v.z << ')';
 }
 
 Vec3F random_in_unit_sphere();
@@ -304,6 +294,16 @@ Vec3F random_on_unit_sphere_surface();
 
 } // namespace gm
 
+namespace rt {
+
 using gm::Vec3F;
+
+}
+
+namespace img {
+
+using gm::Vec3F;
+
+}
 
 #endif

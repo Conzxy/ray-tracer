@@ -193,6 +193,10 @@ using Point3i = Point3<int>;
 
 } // namespace gm
 
+namespace rt {
+
 using gm::Point3F;
+
+}
 
 #endif
