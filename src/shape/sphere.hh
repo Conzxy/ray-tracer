@@ -24,6 +24,9 @@ class Sphere : public Shape
 
   Vec3F normal(Point3F const &p) const noexcept;
 
+  virtual double pdf_value(Point3F const &origin, Vec3F const &direction) const override;
+  virtual Vec3F random_direction(Point3F const &origin) const override;
+
   static void get_uv(Point3F const &p, double &u, double &v);
  private:
   Point3F center_;

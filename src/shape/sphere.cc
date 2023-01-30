@@ -4,8 +4,12 @@
 
 #include "../rt/hit_record.hh"
 #include "../accelerate/aabb.hh"
+#include "../gm/onb.hh"
+#include "../sample/sample.hh"
 
 using namespace rt;
+using namespace util;
+using namespace gm;
 
 bool Sphere::hit(Ray const &ray, double tmin, double tmax,
                  HitRecord &record) const
@@ -62,4 +66,20 @@ void Sphere::get_uv(Point3F const &p, double &u, double &v)
   auto pi = atan2(-p.z, p.x) + gm::pi;
   u = pi / (gm::pi * 2);
   v = theta / gm::pi;
+}
+
+double Sphere::pdf_value(const Point3F &origin, const Vec3F &direction) const
+{
+  HitRecord rec;
+  if (!Sphere::hit(Ray(origin, direction), 0.001, inf, rec)) return 0;
+  auto cos_theta_max = sqrt(1 - radius_ * radius_ / (center_ - origin).length_squared());
+  auto solid_angle = 2 * pi * (1 - cos_theta_max);
+  return 1 / solid_angle;
+}
+
+Vec3F Sphere::random_direction(const Point3F &origin) const
+{
+  auto z_axis = center_ - origin;
+  Onb onb(z_axis);
+  return onb.local(sphere_direction_sample(radius_, z_axis.length_squared()));
 }
