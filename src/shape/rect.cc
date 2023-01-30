@@ -2,8 +2,11 @@
 
 #include "../accelerate/aabb.hh"
 #include "../rt/hit_record.hh"
+#include "../util/random.hh"
 
 using namespace rt;
+using namespace gm;
+using namespace util;
 
 bool XyRect::hit(Ray const &ray, double tmin, double tmax,
                  HitRecord &record) const
@@ -84,4 +87,30 @@ bool XzRect::get_bounding_box(Aabb &bbox) const
   bbox = Aabb(Point3F(x0_, k_ - THICKNESS, z0_),
               Point3F(x1_, k_ + THICKNESS, z1_));
   return true;
+}
+
+double XzRect::pdf_value(const Point3F &origin, const Vec3F &direction) const
+{
+  HitRecord hit_rec;
+  // 如果scatter ray没有与该矩形面相交，那么就不针对其采样，即pdf为0
+  if (!XzRect::hit(Ray(origin, direction), 0.001, inf, hit_rec)) return 0;
+
+  const auto area = (x1_ - x0_) * (z1_ - z0_);
+  // FIXME
+  // (hit_rec.p - origin).length_squared() is better?
+  const auto distance_squared =
+      hit_rec.t * hit_rec.t * direction.length_squared();
+
+  // 两面都可以采样
+  const auto cos_theta = fabs(dot(direction.normalize(), hit_rec.normal));
+  // const auto cos_theta = fabs(dot(direction, hit_rec.normal) / direction.length());
+
+  return distance_squared / (area * cos_theta);
+}
+
+Vec3F XzRect::random_direction(const Point3F &origin) const
+{
+  auto point = Point3F{random_double(x0_, x1_), k_, random_double(z0_, z1_)};
+  // std::cout << point << '\n';
+  return point - origin;
 }
