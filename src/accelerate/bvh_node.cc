@@ -79,11 +79,11 @@ build_bvh_subtree(std::vector<std::shared_ptr<Shape>> const &objects,
     node->right = node->left = new BvhNode(scene[start]);
   } else if (obj_sz == 2) {
     if (comparator(scene[start], scene[start+1])) {
-      node->left = new BvhNode(scene[start]);
-      node->right = new BvhNode(scene[start+1]);
+      node->left = new BvhNode(std::move(scene[start]));
+      node->right = new BvhNode(std::move(scene[start+1]));
     } else {
-      node->left = new BvhNode(scene[start+1]);
-      node->right = new BvhNode(scene[start]);
+      node->left = new BvhNode(std::move(scene[start+1]));
+      node->right = new BvhNode(std::move(scene[start]));
     }
   } else {
     auto mid = start + obj_sz / 2;
