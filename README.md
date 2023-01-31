@@ -57,8 +57,7 @@ $ ./rt 1.tga -h=800 && [image viewr(support *.tga format)] 1.tga
 ## Example
 采用经典的cornell box来验证全局光照效果如何。
 <br>下图是以余弦密度、对球、对光源分别以1/2, 1/4, 1/4的权重作为混合密度的渲染结果(spp=1000)。
-![cornellbox.png](https://s2.loli.net/2023/01/30/pgZXUAFoscPGD5i.png)
-
+![cornellbox.png](https://s2.loli.net/2023/01/31/UfIgAcl5b4x8sKo.png)
 ## Reference
  [[1] Peter Shirley, Steve Hollasch, Trevor David Black. Ray Tracing: In One Weekend. 2020-12-07 ](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 <br>[[2] Peter Shirley, Steve Hollasch, Trevor David Black. Ray Tracing: The Next Week. 2020-12-07 ](https://raytracing.github.io/books/RayTracingTheNextWeek.html)
