@@ -180,7 +180,7 @@ void setup_cornellbox2(ShapeList &world, ShapeSPtr &lights)
   //     make_shared<Matal>(rt::Color(0.8, 0.85, 0.88), 0.0);
   shared_ptr<Shape> box1 =
       make_shared<Box>(Point3F(0, 0, 0), Point3F(165, 330, 165), white);
-  box1 = make_shared<Rotate>(box1, Degree{.y = 15});
+  box1 = make_shared<Rotate>(box1, Degree{.y = 18});
   box1 = make_shared<Translate>(box1, Vec3F(265, 0, 295));
   world.add(box1);
 
