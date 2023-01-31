@@ -30,11 +30,12 @@
   * `平移`(Translation)
   * `旋转`(Rotation)
 * 相机支持`景深`(Field of depth)
+* 支持固定密度的`体渲染`(Volume rendering)
+  * 烟/雾/水汽...
 
 ## TODO
 - [ ] Perlin noise
 - [ ] Motion blur
-- [ ] Volume rendering
 
 ## Build & Usage
 ```bash
