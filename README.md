@@ -32,7 +32,7 @@
 * 相机支持`景深`(Field of depth)
 
 ## TODO
-- [ ] Perlin noisy
+- [ ] Perlin noise
 - [ ] Motion blur
 - [ ] Volume rendering
 
@@ -43,7 +43,7 @@ $ ./build.sh rt --mode=release
 $ ./rt --help
 Usage: ./rt [image path] [--sample_per_pixel/-spp integer] [--threads/-t integer] [--gamma/-g integer] [--height/-h integer] [
 --scene/-s integer]
-$ ./rt 1.tga -h=800 ./rt 1.tga -h=800 -spp=100 -t=8 && [image viewr(support *.tga format)] 1.tga
+$ ./rt 1.tga -h=800 && [image viewr(support *.tga format)] 1.tga
 ```
 需要指定图片存放路径，其它均是选项。
 <br>* `--sample_per_pixel/-spp`: 一个像素的采样数。默认为100。
