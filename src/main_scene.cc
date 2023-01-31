@@ -1,5 +1,7 @@
 #include "main_scene.hh"
 
+#include <memory>
+
 #include "accelerate/bvh_node.hh"
 #include "material/dielectric.hh"
 #include "material/diffuse_light.hh"
@@ -11,6 +13,7 @@
 #include "shape/rotate.hh"
 #include "shape/sphere.hh"
 #include "shape/translate.hh"
+#include "shape/constant_medium.hh"
 #include "texture/checker_texture.hh"
 #include "texture/image_texture.hh"
 #include "texture/solid_texture.hh"
@@ -118,28 +121,44 @@ void setup_cornellbox(ShapeList &world, ShapeSPtr &lights)
   auto light_rect = make_shared<FlipFace>(
       XzRect::create_based_mid(0, 200, -278, 200, 554, light));
   world.add(light_rect);
-  auto glass = make_shared<Dielectric>(1.5);
-  auto sphere = make_shared<Sphere>(Point3F(107, 90, -230), 90, glass);
-  // world.add(sphere);
-
-  auto light_list = make_shared<ShapeList>();
-  light_list->add(light_rect);
-  light_list->add(sphere);
-  lights = std::move(light_list);
-
-  // auto mirror = make_shared<Matal>(rt::Color(1, 1, 1), 0);
+  
+  MaterialSPtr box1_mat = nullptr;
+#if 1
+  box1_mat = white;
+#else
+  auto mirror = make_shared<Matal>(rt::Color(1, 1, 1), 0);
+  box1_mat = mirror;
+#endif
   ShapeSPtr box1 = make_shared<Box>(Point3F(0, 0, 0), Point3F(165, 330, 165),
-                                    white); // left
+                                    box1_mat); // left
 
   ShapeSPtr box2 = make_shared<Box>(Point3F(0, 0, 0), Point3F(165, 165, 165),
                                     white); // right
+
+  auto light_list = make_shared<ShapeList>();
+  light_list->add(light_rect);
 
   box1 = make_shared<Rotate>(std::move(box1), Degree{.y = 18});
   box2 = make_shared<Rotate>(std::move(box2), Degree{.y = -15});
   box1 = make_shared<Translate>(std::move(box1), Vec3F{-152, 0, -460});
   box2 = make_shared<Translate>(std::move(box2), Vec3F{17, 0, -230});
+#define CORNELLBOX_SCENE 1
+#if CORNELLBOX_SCENE == 0
+  world.add(make_shared<ConstantMedium>(std::move(box1), 0.01, Color{0, 0, 0}));
+  world.add(make_shared<ConstantMedium>(std::move(box2), 0.01, Color{1, 1, 1}));
+#elif CORNELLBOX_SCENE == 1
+  auto glass = make_shared<Dielectric>(1.5);
+  auto sphere = make_shared<Sphere>(Point3F(107, 90, -230), 90, glass);
+  world.add(sphere);
+  light_list->add(sphere);
+  world.add(box1);
+#elif CORNELLBOX_SCENE == 2
   world.add(box1);
   world.add(box2);
+#endif
+
+  lights = std::move(light_list);
+
 }
 
 void setup_cornellbox2(ShapeList &world, ShapeSPtr &lights)
