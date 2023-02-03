@@ -47,24 +47,24 @@ File::~File() noexcept
 bool File::Open(char const* filename, int mode)
 {
   if (mode & WRITE) {
-    fp_ = ::fopen(filename, "r+b");
+    fp_ = ::fopen(filename, "r+");
   }
   else if (mode & READ) {
     if (mode & APP) {
-      fp_ = ::fopen(filename, "a+b");
+      fp_ = ::fopen(filename, "a+");
     }
     else if (mode & TRUNC) {
-      fp_ = ::fopen(filename, "w+b");
+      fp_ = ::fopen(filename, "w+");
     }
     else {
-      fp_ = ::fopen(filename, "rb");
+      fp_ = ::fopen(filename, "r");
     }
   }
   else if (mode & APP) {
-    fp_ = ::fopen(filename, "ab");
+    fp_ = ::fopen(filename, "a");
   }
   else if (mode & TRUNC) {
-    fp_ = ::fopen(filename, "wb");
+    fp_ = ::fopen(filename, "w");
   }
 
   return fp_ != NULL;
