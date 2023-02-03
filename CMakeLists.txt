@@ -27,30 +27,30 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-Og")
 # FYI https://gcc.gnu.org/onlinedocs/gcc-5.5.0/gcc/Warning-Options.html#Warning-Options
 set(CXX_FLAGS 
  -Wall
- -Wextra
- -Wno-return-local-addr
- -Wno-unused-parameter
- -Wno-unused-function
- -Wno-switch
- -Wno-format-security
+ # -Wextra
+ #-Wno-return-local-addr
+ #-Wno-unused-parameter
+ #-Wno-unused-function
+ #-Wno-switch
+ #-Wno-format-security
  # support INT2DOUBLE
- -Wno-strict-aliasing
- -Werror
+ #-Wno-strict-aliasing
+ #-Werror
  # make non-trivial(but like "trivial") class can reallocate
- -Wno-class-memaccess
- -Wno-implicit-fallthrough
+ #-Wno-class-memaccess
+ #-Wno-implicit-fallthrough
  #-Wconversion
  #-Wshadow
- -Wno-maybe-uninitialized
- -Wwrite-strings # in fact, this is default specified
+ #-Wno-maybe-uninitialized
+ #-Wwrite-strings # in fact, this is default specified
  #cxx standard 
- -std=c++17
- -pthread
+ #-std=c++17
+ #-pthread
     
  # linker opt
- -rdynamic
+#  -rdynamic
  # machine opt
- -march=native
+ #-march=native
 )
 
 # Clang和GCC有些选项是不通用的
@@ -60,6 +60,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND CXX_FLAGS "-Wthread-safety")
 endif()
 
+set(CMAKE_CXX_STANDARD 20)
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
@@ -68,8 +69,8 @@ message(STATUS "BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 set(RAY_TRACER_SOURCE_DIR ${PROJECT_SOURCE_DIR}/ray_tracer)
 
 # 如果项目依赖于第三方库，可以将以下有关third-party的均解注释
-#set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third-party)
-
+set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third-party)
+include_directories(${THIRD_PARTY_DIR})
 # 可选项，不过默认包含
 # 引用自己的模块，我偏向于
 # #include "$project_name/xxx/xxx.h"
@@ -159,4 +160,4 @@ endmacro ()
 add_subdirectory(src)
 #add_subdirectory(example)
 add_subdirectory(test)
-#add_subdirectory(third-party)
+# add_subdirectory(third-party)
