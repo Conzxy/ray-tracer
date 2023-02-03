@@ -145,9 +145,10 @@ class TgaImage {
   int bits_per_pixel() const noexcept { return bytes_per_pixel() << 3; }
   int width() const noexcept { return width_; }
   int height() const noexcept { return height_; }
+  uint8_t const* data() const noexcept { return image_data_.data();  }
   
   void EnableDebug(bool debug) noexcept { enable_debug_ = debug; }
-
+  void EnableRleDebug(bool debug) noexcept { rle_enable_debug_ = debug; }
  private:
   void PrintHeader(TgaHeader const &header);
 
@@ -159,6 +160,7 @@ class TgaImage {
   ImageType image_type_ = NO_IMAGE_DATA;
   
   bool enable_debug_ = false;
+  bool rle_enable_debug_ = false;
   uint8_t const* borrow_image_data_ = nullptr;
   std::vector<uint8_t> image_data_; // TODO Not optimal
 };

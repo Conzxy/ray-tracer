@@ -1,12 +1,12 @@
 #include "tga_image.hh"
 
 #include <algorithm>
-#include <assert.h>
-#include <endian.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "../util/assert.hh"
 #include "../util/file.hh"
+#include "../util/endian.h"
 
 using namespace img;
 using namespace util;
@@ -61,7 +61,7 @@ bool TgaImage::WriteTo(char const *path, bool rle,
                        ImageOriginOrder order) noexcept
 {
   if (enable_debug_) {
-    printf("WriteTo Debug\n");
+    printf("===== WriteTo debug(start) =====\n");
   }
 
   File out;
@@ -88,9 +88,10 @@ bool TgaImage::WriteTo(char const *path, bool rle,
       break;
   }
   header.image_descriptor |= (uint8_t)order;
-
+  
   out.Write(&header, sizeof(header));
-
+  if (enable_debug_)
+    PrintHeader(header);
   /*
    * After header:
    * Image/Color Map data:
@@ -108,11 +109,10 @@ bool TgaImage::WriteTo(char const *path, bool rle,
   size_t pixel_size = pixel_total * bytes_per_pixel();
   uint8_t const *image_raw_data_end = image_raw_data + pixel_size;
 
-  std::vector<uint8_t> image_buffer;
-
-  image_buffer.reserve(pixel_size);
-
   if (rle) {
+    std::vector<uint8_t> image_buffer;
+    image_buffer.reserve(pixel_size);
+
     size_t pixel_index = 0;
     int bpp = bytes_per_pixel();
     int pixel_bytes = 0;
@@ -141,7 +141,7 @@ bool TgaImage::WriteTo(char const *path, bool rle,
             }
           }
           
-          if (enable_debug_) {
+          if (rle_enable_debug_) {
             printf("[RLE packet]\n");
             printf("pixel number = %d\n", pixel_number);
           }
@@ -185,7 +185,7 @@ bool TgaImage::WriteTo(char const *path, bool rle,
           pixel_bytes = next_adj_same_pixel - saved_first_pixel;
           pixel_number = pixel_bytes / bpp;
 
-          if (enable_debug_) {
+          if (rle_enable_debug_) {
             printf("[Raw packet]\n");
             printf("pixel_number = %d\n", pixel_number);
           }
@@ -239,6 +239,10 @@ bool TgaImage::WriteTo(char const *path, bool rle,
   memcpy(footer.signature, NEW_FORMAT_SIGNATURE, sizeof footer.signature);
 
   out.Write(&footer, sizeof footer);
+  
+  if (enable_debug_) {
+    printf("===== WriteTo debug(end) =====\n");
+  }
   return true;
 }
 
@@ -393,19 +397,19 @@ bool TgaImage::ReadFrom(char const *path) noexcept
       auto pixel_number = (packet_header & 0x7f) + 1;
       auto pixel_size = pixel_number * bpp;
 
-      if (enable_debug_) {
+      if (rle_enable_debug_) {
         printf("pixel_number = %d\n", pixel_number);
       }
       // Raw packet
       if (packet_type == 0) {
-        if (enable_debug_) printf("Raw packet\n");
+        if (rle_enable_debug_) printf("Raw packet\n");
         in.Read(&pixel_buffer[0], pixel_size);
         memcpy(&image_data_[cached_pixel_size], pixel_buffer.data(),
                pixel_size);
         raw_packet_num++;
       } else {
         // Run-length packet
-        if (enable_debug_) printf("RLE packet\n");
+        if (rle_enable_debug_) printf("RLE packet\n");
         in.Read(&pixel_buffer[0], bpp);
         for (int i = 0; i < pixel_size; i += bpp) {
           memcpy(&image_data_[cached_pixel_size + i], pixel_buffer.data(),
@@ -420,7 +424,7 @@ bool TgaImage::ReadFrom(char const *path) noexcept
     in.Read(&image_data_[0], image_data_.size());
   }
   
-  if (enable_debug_) {
+  if (rle_enable_debug_) {
     printf("rle packet number = %zu\n", rle_packet_num);
     printf("raw packet number = %zu\n", raw_packet_num);
   }
