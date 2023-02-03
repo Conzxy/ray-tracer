@@ -3,6 +3,13 @@
 #include <thread>
 #include <random>
 
+#define USE_STB_IMAGE_WRITE 0
+
+#if USE_STB_IMAGE_WRITE
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb/stb_image_write.h>
+#endif
+
 #include "main_scene.hh"
 #include "option.hh"
 #include "gm/util.hh"
@@ -36,15 +43,27 @@ Vec3F ray_color(Ray const &ray, rt::Color const &background, Shape const &shape,
 img::Color compute_color(Vec3F const &c, int sample_per_pixel,
                          double gamma_exp);
 
+#if USE_STB_IMAGE_WRITE
+bool write_tga_by_stb(TgaImage const& image, char const *path)
+{
+  stbi_flip_vertically_on_write(true);
+  if (!stbi_write_tga(path,
+    image.width(), image.height(), image.bytes_per_pixel(), image.data())) {
+    return false;
+  }
+  return true;
+}
+#endif
 
 int main(int argc, char *argv[])
 {
+  /****** Setting Options *****/
   Option option;
   if (!parse_options(argc, argv, &option)) {
     return EXIT_FAILURE;
   }
-
   option.DebugPrint();
+
   double gamma_exp = 1. / option.gamma;
 
   // Setup camera
@@ -58,7 +77,8 @@ int main(int argc, char *argv[])
   Point3F lookat(0, 0, -1);
   double fov = 90;
   ShapeSPtr lights = nullptr;
-
+  
+  // Setup Scene
   switch (option.scene_id) {
     case 0: {
       setup_scene(world);
@@ -112,10 +132,12 @@ int main(int argc, char *argv[])
   Camera camera(lookfrom, lookat, aspect_ratio, fov, 1);
   camera.set_aperture(0.0);
   camera.DebugPrint();
+
   // Setup image
   int image_width = aspect_ratio * option.image_height;
   TgaImage image(image_width, option.image_height);
-
+  
+  // Setup thread and slice
   std::vector<std::thread> thrs;
   thrs.reserve(option.thread_num);
 
@@ -125,7 +147,7 @@ int main(int argc, char *argv[])
   printf("slice = %d\n", slice);
 
   const size_t total_sample =
-      image.height() * image.width() * option.sample_per_pixel;
+    image.height() * image.width() * option.sample_per_pixel;
   AtomicCounter64 current_complete_sample(0);
 
   auto start_of_render = ktm::steady_clock::now();
@@ -135,34 +157,36 @@ int main(int argc, char *argv[])
     if (ti == option.thread_num - 1 && end != 0) {
       end = 0;
     }
+  
+    // Setup main render loop
+    thrs.emplace_back(std::thread(
+      [start, end, &option, gamma_exp, &background,
+      &world, &camera, &image,
+      &current_complete_sample, &lights]() {
+        for (int j = start; j >= end; --j) {
+          for (int i = 0; i < image.width(); ++i) {
+            // propertion
+            Vec3F color_prop(0, 0, 0);
+            for (int k = 0; k < option.sample_per_pixel; ++k) {
+              auto offset = double(k) / option.sample_per_pixel;
+              auto u = double(i + offset) / (image.width() - 1);
+              auto v = double(j + offset) / (image.height() - 1);
 
-    // printf("slice [%d, %d]\n", start, end);
-    thrs.emplace_back(std::thread([start, end, &option, gamma_exp, &background,
-                                   &world, &camera, &image,
-                                   &current_complete_sample, &lights]() {
-      for (int j = start; j >= end; --j) {
-        for (int i = 0; i < image.width(); ++i) {
-          // propertion
-          Vec3F color_prop(0, 0, 0);
-          for (int k = 0; k < option.sample_per_pixel; ++k) {
-            auto offset = double(k) / option.sample_per_pixel;
-            auto u = double(i + offset) / (image.width() - 1);
-            auto v = double(j + offset) / (image.height() - 1);
-
-            auto ray = camera.ray(u, v);
-            color_prop += ray_color(ray, background, world, lights, MAX_DEPTH);
-            current_complete_sample++;
-          }
-          auto color =
+              auto ray = camera.ray(u, v);
+              color_prop += ray_color(ray, background, world, lights, MAX_DEPTH);
+              current_complete_sample++;
+            }
+            auto color =
               compute_color(color_prop, option.sample_per_pixel, gamma_exp);
-          image.SetPixel(i, j, color);
+            image.SetPixel(i, j, color);
+          }
         }
-      }
-    }));
+      }));
 
     start -= slice + 1;
   }
-
+  
+  // Set and Update progress bar indicator
   while (1) {
     auto current_value = current_complete_sample.GetValue();
     if (current_value >= total_sample) break;
@@ -171,17 +195,25 @@ int main(int argc, char *argv[])
   }
   update_progress_bar('#', 100);
 
-  for (auto &thr : thrs) {
+  for (auto& thr : thrs) {
     thr.join();
   }
 
   auto end_of_render = ktm::steady_clock::now();
   ktm::duration<double> cost_time_of_render = end_of_render - start_of_render;
   printf("\nThe consume time of render is %.3lf sec\n",
-         cost_time_of_render.count());
+    cost_time_of_render.count());
   fflush(stdout);
-  image.WriteTo(option.path);
-
+  
+#if USE_STB_IMAGE_WRITE
+  if (write_tga_by_stb(image, option.path)) {
+    return EXIT_FAILURE;
+  }
+#else
+  if (!image.WriteTo(option.path)) {
+    return EXIT_FAILURE;
+  }
+#endif
   return EXIT_SUCCESS;
 }
 
@@ -265,6 +297,9 @@ img::Color compute_color(Vec3F const &c, int sample_per_pixel, double gamma_exp)
   img::Color color(int(256 * clamp(rgb.x, 0, 0.99999)),
                    int(256 * clamp(rgb.y, 0, 0.99999)),
                    int(256 * clamp(rgb.z, 0, 0.99999)));
+#if USE_STB_IMAGE_WRITE
+  std::swap(color.r, color.b);
+#endif
   return color;
 }
 
