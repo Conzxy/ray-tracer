@@ -1,8 +1,8 @@
 #ifndef KANON_UTIL_ARITHMETIC_H
 #define KANON_UTIL_ARITHMETIC_H
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -17,7 +17,12 @@ typedef unsigned char uchar;
 typedef unsigned long ulong;
 typedef unsigned long long ullong;
 
+#ifdef _WIN32
+typedef long long isize;
+#else defined(__unix__)
 typedef ssize_t isize;
+#endif
+
 typedef size_t usize;
 
 typedef uint8_t u8;

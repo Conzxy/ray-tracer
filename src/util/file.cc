@@ -166,7 +166,7 @@ size_t File::GetFileSize(char const *path) noexcept
   return stat_buffer.st_size;
 #else
   File file;
-  if (!file.Open(path)) {
+  if (!file.Open(path, File::READ)) {
     return -1;
   }
 

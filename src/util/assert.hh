@@ -15,7 +15,7 @@
 #endif 
 
 #define ASSERT(cond) \
-  ({if (unlikely((cond) == 0)) \
+  {if (((cond) == 0)) \
    {\
     char buf[1536]; \
     ::memset(buf, 0, sizeof buf); \
@@ -24,6 +24,6 @@
     ::fputs(buf, stderr); \
     ::fflush(stderr); \
     ::abort();\
-   }})
+   }}
 
 #endif
