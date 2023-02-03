@@ -3,7 +3,7 @@
 
 #include <array>
 #include <initializer_list>
-#include <stddef.h>
+#include <cstddef>
 
 #include "vec.hh"
 #include "point.hh"
@@ -77,17 +77,19 @@ struct matrix_multiple_nest_3 {
   static void f(Matrix<T, M, N> &c, Matrix<T, M, K> const &a,
                 Matrix<T, K, N> const &b)
   {
-    c[i][k] += a[i][j] * b[j][k];
-    matrix_multiple_nest_3<T, M, K, N, i, j, k + 1>::f(c, a, b);
+    //c[M-1-i][N-1-k] += a[M-1-i][K-1-j] * b[K-1-j][N-1-k];
+      c[i][k] += a[i][j] * b[j][k];
+      matrix_multiple_nest_3<T, M, K, N, i, j, k - 1>::f(c, a, b);
   }
 };
 
 template <typename T, size_t M, size_t K, size_t N, size_t i, size_t j>
-struct matrix_multiple_nest_3<T, M, K, N, i, j, N - 1> {
+struct matrix_multiple_nest_3<T, M, K, N, i, j, 0> {
   static void f(Matrix<T, M, N> &c, Matrix<T, M, K> const &a,
                 Matrix<T, K, N> const &b)
   {
-    c[i][N - 1] += a[i][j] * b[j][N - 1];
+    // c[M-1-i][N - 1] += a[M-1-i][K-1-j] * b[K-1-j][N - 1];
+    c[i][0] += a[i][j] * b[j][0];
   }
 };
 
@@ -96,17 +98,17 @@ struct matrix_multiple_nest_2 {
   static void f(Matrix<T, M, N> &c, Matrix<T, M, K> const &a,
                 Matrix<T, K, N> const &b)
   {
-    matrix_multiple_nest_3<T, M, K, N, i, j, 0>::f(c, a, b);
-    matrix_multiple_nest_2<T, M, K, N, i, j + 1>::f(c, a, b);
+    matrix_multiple_nest_3<T, M, K, N, i, j, N-1>::f(c, a, b);
+    matrix_multiple_nest_2<T, M, K, N, i, j - 1>::f(c, a, b);
   }
 };
 
 template <typename T, size_t M, size_t K, size_t N, size_t i>
-struct matrix_multiple_nest_2<T, M, K, N, i, K - 1> {
+struct matrix_multiple_nest_2<T, M, K, N, i, 0> {
   static void f(Matrix<T, M, N> &c, Matrix<T, M, K> const &a,
                 Matrix<T, K, N> const &b)
   {
-    matrix_multiple_nest_3<T, M, K, N, i, K - 1, 0>::f(c, a, b);
+    matrix_multiple_nest_3<T, M, K, N, i, 0, N-1>::f(c, a, b);
   }
 };
 
@@ -115,17 +117,17 @@ struct matrix_multiple_nest_1 {
   static void f(Matrix<T, M, N> &c, Matrix<T, M, K> const &a,
                 Matrix<T, K, N> const &b)
   {
-    matrix_multiple_nest_2<T, M, K, N, i, 0>::f(c, a, b);
-    matrix_multiple_nest_1<T, M, K, N, i + 1>::f(c, a, b);
+    matrix_multiple_nest_2<T, M, K, N, i, K-1>::f(c, a, b);
+    matrix_multiple_nest_1<T, M, K, N, i - 1>::f(c, a, b);
   }
 };
 
 template <typename T, size_t M, size_t K, size_t N>
-struct matrix_multiple_nest_1<T, M, K, N, M - 1> {
+struct matrix_multiple_nest_1<T, M, K, N, 0> {
   static void f(Matrix<T, M, N> &c, Matrix<T, M, K> const &a,
                 Matrix<T, K, N> const &b)
   {
-    matrix_multiple_nest_2<T, M, K, N, M - 1, 0>::f(c, a, b);
+    matrix_multiple_nest_2<T, M, K, N, 0, K-1>::f(c, a, b);
   }
 };
 
@@ -135,7 +137,7 @@ template <typename T, size_t M, size_t K, size_t N>
 Matrix<T, M, N> operator*(Matrix<T, M, K> const &a, Matrix<T, K, N> const &b)
 {
   Matrix<T, M, N> c(0);
-  detail::matrix_multiple_nest_1<T, M, K, N, 0>::f(c, a, b);
+  detail::matrix_multiple_nest_1<T, M, K, N, M-1>::f(c, a, b);
   return c;
 }
 
