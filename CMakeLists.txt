@@ -43,7 +43,7 @@ else ()
   -Wno-format-security
   # support INT2DOUBLE
   -Wno-strict-aliasing
-  -Werror
+  # -Werror
   # make non-trivial(but like "trivial") class can reallocate
   -Wno-class-memaccess
   -Wno-implicit-fallthrough
@@ -54,7 +54,7 @@ else ()
   -pthread
       
   # linker opt
-  -rdynamic
+  # -rdynamic
   # machine opt
   -march=native
   )
