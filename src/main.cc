@@ -3,7 +3,7 @@
 #include <thread>
 #include <random>
 
-#define USE_STB_IMAGE_WRITE 0
+#define USE_STB_IMAGE_WRITE 1
 
 #if USE_STB_IMAGE_WRITE
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -49,6 +49,17 @@ bool write_tga_by_stb(TgaImage const& image, char const *path)
   stbi_flip_vertically_on_write(true);
   if (!stbi_write_tga(path,
     image.width(), image.height(), image.bytes_per_pixel(), image.data())) {
+    return false;
+  }
+  return true;
+}
+
+bool write_png_by_stb(TgaImage const& image, char const *path)
+{
+  stbi_flip_vertically_on_write(true);
+  if (!stbi_write_png(path,
+    image.width(), image.height(), image.bytes_per_pixel(), image.data(), 
+    image.bytes_per_pixel() * image.width())) {
     return false;
   }
   return true;
@@ -206,7 +217,19 @@ int main(int argc, char *argv[])
   fflush(stdout);
   
 #if USE_STB_IMAGE_WRITE
-  if (write_tga_by_stb(image, option.path)) {
+  std::string_view path_view(option.path);
+  if (path_view.ends_with(".png")) {
+    if (write_png_by_stb(image, option.path)) {
+      return EXIT_FAILURE;
+    }
+  }
+  else if (path_view.ends_with(".tga")) {
+    if (write_tga_by_stb(image, option.path)) {
+      return EXIT_FAILURE;
+    }
+  }
+  else {
+    fprintf(stderr, "The valid image format is *.png/*.tga");
     return EXIT_FAILURE;
   }
 #else
