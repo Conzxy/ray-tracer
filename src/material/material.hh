@@ -9,7 +9,7 @@
 namespace rt {
 
 class Ray;
-class HitRecord;
+struct HitRecord;
 struct ScatterRecord;
 
 class Material
