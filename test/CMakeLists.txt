@@ -1,4 +1,4 @@
-#enable_testing()
+enable_testing()
 # 获取test和benchmark的所有源文件
 file(GLOB RAY_TRACER_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*test*.cc")
 file(GLOB RAY_TRACER_BENCH_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*bench*.cc")
@@ -34,7 +34,7 @@ macro (GenTest SRC)
       add_executable(${ray_tracer_test_filename} EXCLUDE_FROM_ALL ${ray_tracer_test_source})
     endif (${BUILD_ALL_TESTS})
 
-    target_link_libraries(${ray_tracer_test_filename} ${ARGN})
+    target_link_libraries(${ray_tracer_test_filename} PRIVATE ${ARGN})
     set_target_properties(${ray_tracer_test_filename}
       PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
@@ -42,7 +42,6 @@ macro (GenTest SRC)
     )
 
     add_test(NAME ${ray_tracer_test_filename} COMMAND ${ray_tracer_test_filename})
-
   endforeach (ray_tracer_test_source ${RAY_TRACER_TEST_SOURCES})
 endmacro()
 
@@ -53,5 +52,8 @@ endmacro()
 # 基准测试依赖benchmark
 # 用户可根据需要替换
 # 至于其他依赖项也可以在尾部追加
-GenTest(RAY_TRACER_TEST_SOURCES gtest gtest_main ray_tracer)
-GenTest(RAY_TRACER_BENCH_SOURCES benchmark benchmark_main)
+find_package(GTest CONFIG REQUIRED)
+find_package(benchmark CONFIG REQUIRED)
+
+GenTest(RAY_TRACER_TEST_SOURCES GTest::gtest GTest::gtest_main ray_tracer)
+GenTest(RAY_TRACER_BENCH_SOURCES benchmark::benchmark benchmark::benchmark_main ray_tracer)
